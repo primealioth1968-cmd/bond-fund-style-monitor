@@ -288,7 +288,6 @@ function renderFramework(){
 }
 function init(){S=DATA.summary;initNav();showPage("overview")}
 
-<script>
 (async function(){
   try{
     if(!window.DecompressionStream)throw new Error("浏览器不支持DecompressionStream，使用完整降级数据");
@@ -302,6 +301,5 @@ function init(){S=DATA.summary;initNav();showPage("overview")}
     var s=document.createElement("script");s.src="data.js";s.onload=function(){init()};s.onerror=function(){throw new Error("降级数据加载失败")};document.body.appendChild(s);
   }
 })();
-</script>
 </script>
 </body></html>
