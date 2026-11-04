@@ -311,7 +311,7 @@ function init(){S=DATA.summary;initNav();showPage("overview")}
 
 window.loadJsonResource=async function(name){
   if(!window.DecompressionStream)throw new Error("浏览器不支持DecompressionStream");
-  var urls=[name,"https://cdn.jsdelivr.net/gh/primealioth1968-cmd/bond-fund-style-monitor@main/"+name],last=null;
+  var urls=[name,"https://raw.githubusercontent.com/primealioth1968-cmd/bond-fund-style-monitor/main/"+name],last=null;
   for(var i=0;i<urls.length;i++){
     var controller=new AbortController(),timer=null;
     try{
