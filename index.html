@@ -224,11 +224,8 @@ function ensureRolling(code){
  setBoot(true,"正在加载滚动数据","滚动数据独立于首屏加载；加载完成后当前页面会自动更新。");
  rollingLoadPromise=(async()=>{
   try{
-   if(!window.DecompressionStream)throw new Error("浏览器不支持DecompressionStream");
-   const response=await fetch("rolling.json.gz",{cache:"no-cache"});
-   if(!response.ok)throw new Error("滚动压缩数据HTTP "+response.status);
-   const text=await new Response(response.body.pipeThrough(new DecompressionStream("gzip"))).text();
-   Object.assign(DATA.rolling,JSON.parse(text));
+   const rollingData=await window.loadJsonResource("rolling.json.gz");
+   Object.assign(DATA.rolling,rollingData);
   }catch(e){
    console.warn("滚动压缩数据不可用，切换完整降级数据：",e);
    await new Promise((resolve,reject)=>{const s=document.createElement("script");s.src="rolling.js";s.onload=()=>{Object.assign(DATA.rolling,ROLLING_DATA);resolve()};s.onerror=()=>reject(new Error("滚动降级数据加载失败"));document.body.appendChild(s)});
@@ -308,13 +305,24 @@ function renderFramework(){
 }
 function init(){S=DATA.summary;initNav();showPage("overview")}
 
+window.loadJsonResource=async function(name){
+  if(!window.DecompressionStream)throw new Error("浏览器不支持DecompressionStream");
+  var urls=[name,"https://cdn.jsdelivr.net/gh/primealioth1968-cmd/bond-fund-style-monitor@main/"+name],last=null;
+  for(var i=0;i<urls.length;i++){
+    var controller=new AbortController(),timer=null;
+    try{
+      timer=setTimeout(function(){controller.abort()},30000);
+      var response=await fetch(urls[i],{cache:"no-cache",signal:controller.signal});
+      if(!response.ok)throw new Error("压缩数据HTTP "+response.status);
+      var text=await new Response(response.body.pipeThrough(new DecompressionStream("gzip"))).text();
+      return JSON.parse(text);
+    }catch(e){last=e;console.warn("数据通道切换：",urls[i],e)}finally{if(timer)clearTimeout(timer)}
+  }
+  throw last;
+};
 (async function(){
   try{
-    if(!window.DecompressionStream)throw new Error("浏览器不支持DecompressionStream，使用完整降级数据");
-    var response=await fetch("data.json.gz",{cache:"no-cache"});
-    if(!response.ok)throw new Error("压缩数据HTTP "+response.status);
-    var text=await new Response(response.body.pipeThrough(new DecompressionStream("gzip"))).text();
-    window.DATA=JSON.parse(text);
+    window.DATA=await window.loadJsonResource("data.json.gz");
     init();
   }catch(e){
     console.warn("压缩数据不可用，切换完整降级数据：",e);
