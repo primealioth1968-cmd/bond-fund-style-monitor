@@ -234,7 +234,7 @@ function ensureRolling(code){
    if(!response.ok)throw new Error("滚动降级数据HTTP "+response.status);
    Object.assign(DATA.rolling,await response.json());
   }
- })().then(()=>{setBoot(false);if($("page-rolling").classList.contains("active"))renderRolling()}).catch(e=>{setBoot(true,"滚动数据加载失败",String(e&&e.message||e),true)}).finally(()=>{rollingLoadPromise=null});
+ })().then(()=>{setBoot(false);renderRolling()}).catch(e=>{setBoot(true,"滚动数据加载失败",String(e&&e.message||e),true)}).finally(()=>{rollingLoadPromise=null});
  return false;
 }
 function initRolling(){const codes=DATA.rolling_codes||Object.keys(DATA.rolling);$("rolling-fund").innerHTML=codes.map(c=>`<option value="${c}">${c} ${esc(fundName(c))}</option>`).join("");$("rolling-fund").value=codes.includes("000045")?"000045":codes[0];$("rolling-fund").onchange=()=>{setRollingDates();renderRolling()};$("rolling-metric").onchange=renderRolling;for(const id of ["rolling-start","rolling-end"])$(id).onchange=renderRolling;$("rolling-reset").onclick=()=>{setRollingDates();renderRolling()};$("rolling-factors").innerHTML=FACTORS.map(f=>`<label style="color:${FM[f].color}"><input type="checkbox" data-factor="${f}" checked><span class="dot" style="background:${FM[f].color}"></span>${FM[f].name}</label>`).join("");$("rolling-factors").querySelectorAll("input").forEach(ch=>ch.onchange=()=>{const f=ch.dataset.factor;if(ch.checked)rollingState.factors.add(f);else rollingState.factors.delete(f);renderRollingCharts()});setRollingDates();renderRolling()}
