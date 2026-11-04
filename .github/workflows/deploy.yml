@@ -34,6 +34,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          # 服务降级时 updating_pages 可能超过默认10分钟
-          timeout: 1800000
